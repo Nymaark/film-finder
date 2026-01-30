@@ -1,40 +1,33 @@
 'use client';
-import { useState, useEffect } from "react";
-import MovieCard from "./movie-cards";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useDebouncedCallback } from "use-debounce";
 
 export function Search() {
-    const [searchTerm, setSearchTerm] = useState("")
-    const [searchResults, setSearchResults] = useState([])
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const { replace } = useRouter();
 
+    const handleSearch = useDebouncedCallback((query: string) => {
+        const params = new URLSearchParams(searchParams);
+        
 
-    useEffect(() => {
-        const options = {
-            method: 'GET',
-            headers: {
-                accept: 'application/json',
-                Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzYjY2MTUwYjhjNjMxNDdjN2Y1NWViYzA0OGI0YzcwOSIsIm5iZiI6MTc2OTYzODEzNS43MDIwMDAxLCJzdWIiOiI2OTdhODhmN2UwNzY0NWZjNDExZjM2YzkiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.4P-kDGHALeT7Q-OiFkO1cicFM80xw4NtNa9cROgEXWs'
-            }
-        };
+        if (query) {
+            params.set('query', query);
+        } else {
+            params.delete('query');
+        }
 
-        fetch('https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc', options)
-            .then(res => res.json())
-            .then(res => setSearchResults(res.results))
-            .catch(err => console.error(err));
-    }, [searchTerm])
-    console.log(searchResults)
+        replace(`${pathname}?${params.toString()}`);
+    }, 400)
+
     return (
         <>
-            <div className="searchbar w-90 md:w-100 md:h-12 h-13 bg-indigo-200/10 flex justify-center mt-10 mb-5 md:mt-18 items-center md:p-3 p-3 rounded-md">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-7 text-indigo-400">
+            <div className="searchbar w-100 md:w-140 md:h-15 h-16 bg-indigo-200/10 flex justify-center mt-10 mb-8 md:mt-18 items-center md:p-3 p-3 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-7 md:size-8 text-indigo-400">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                 </svg>
-                <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-90 md:w-100 p-2 text-white" placeholder="Search more than a million movies..." />
+                <input type="text" defaultValue={searchParams.get('query')?.toString()} onChange={(e) => handleSearch(e.target.value)} className="w-100 md:w-140 p-2 text-xl text-white focus:outline-none" placeholder="Search more than a million movies..." />
             </div>
-            <ul className="results grid lg:grid-cols-3 grid-cols-2 md:grid-rows-5 md:gap-4">
-                {searchResults.map((movie) => (
-                    <MovieCard movie={movie} />
-                ))}
-            </ul>
         </>
     )
 }
