@@ -1,6 +1,15 @@
 import Image from "next/image"
 
-export default function MovieCard({ movie }) {
+export type Movie = {
+    id: number
+    title: string
+    poster_path?: string | null
+    vote_average: number | string
+    original_language: string
+    release_date: string
+}
+
+export default function MovieCard({ movie }: { movie: Movie }) {
     console.log(movie)
     
     return (

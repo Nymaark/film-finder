@@ -1,6 +1,7 @@
 import MovieCard from "./movie-cards";
 import postgres from "postgres";
 import { supabase } from "../lib/supabase";
+import { Movie } from "./movie-cards";
 
 const sql = postgres(process.env.NEXT_PUBLIC_SUPABASE_URL!, { ssl: 'require'})
 
@@ -18,7 +19,7 @@ const options = {
 
 
     
-export default async function MovieResults({ query }) {
+export default async function MovieResults({ query }: { query?: string }) {
     
     async function fetchMovies() {
         try {
@@ -62,7 +63,7 @@ export default async function MovieResults({ query }) {
 
     return (
         <ul className="results grid lg:grid-cols-3 grid-cols-2 md:grid-rows-5 md:gap-4">
-            {searchResults.map((movie) => (
+            {searchResults.map((movie: Movie) => (
                 <MovieCard key={movie.id} movie={movie} />
             ))}
         </ul>
